@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Manage Collections</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <h2 class="mb-4">💰 Collection History</h2>
+
+  <h4 class="mt-4">💰 Loan Collections</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Staff</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lc in loan_collections %}
+      <tr>
+        <td>{{ lc.customer.name }}</td>
+        <td>৳{{ "{:,.2f}".format(lc.amount) }}</td>
+        <td>{{ lc.collection_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ lc.staff.name if lc.staff else 'N/A' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h4 class="mt-4">🏦 Savings Collections</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Staff</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sc in saving_collections %}
+      <tr>
+        <td>{{ sc.customer.name }}</td>
+        <td>৳{{ "{:,.2f}".format(sc.amount) }}</td>
+        <td>{{ sc.collection_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ sc.staff.name if sc.staff else 'N/A' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">⬅️ Back</a>
+</body>
+</html>

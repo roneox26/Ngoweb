@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Add Loan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <h2 class="mb-4">➕ Add New Loan</h2>
+  
+  <div class="alert alert-info">
+    <strong>💵 Current Cash Balance:</strong> ৳{{ "{:,.2f}".format(cash_balance) }}
+  </div>
+
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">গ্রাহক নির্বাচন করুন</label>
+      <select name="customer_id" class="form-control" required>
+        <option value="">নির্বাচন করুন</option>
+        {% for customer in customers %}
+        <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.phone }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">ঋণ পরিমাণ (৳)</label>
+        <input type="number" step="0.01" name="amount" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">interest(%)</label>
+        <input type="number" step="0.01" name="interest" class="form-control" value="0" required>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">ঋণ বিতরণ তারিখ</label>
+        <input type="date" name="loan_date" class="form-control">
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">শেষ তারিখ</label>
+        <input type="date" name="due_date" class="form-control" required>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <label class="form-label">কিস্তির সংখ্যা</label>
+        <input type="number" id="installment_count" name="installment_count" class="form-control" value="0">
+      </div>
+      <div class="col-md-3 mb-3">
+        <label class="form-label">কিস্তির পরিমাণ (৳)</label>
+        <input type="number" step="0.01" name="installment_amount" class="form-control" value="0">
+      </div>
+      <div class="col-md-3 mb-3">
+        <label class="form-label">আবেদন ফি (৳)</label>
+        <input type="number" step="0.01" name="service_charge" class="form-control" value="0">
+      </div>
+      <div class="col-md-3 mb-3">
+        <label class="form-label">কল্যাণ ফি (৳)</label>
+        <input type="number" step="0.01" name="welfare_fee" class="form-control" value="0">
+      </div>
+    </div>
+    
+    <div class="mb-3">
+      <label class="form-label">কিস্তির ধরণ</label>
+      <select name="installment_type" id="installment_type" class="form-control">
+        <option value="">নির্বাচন করুন</option>
+        <option value="দৈনিক">দৈনিক</option>
+        <option value="সাপ্তাহিক">সাপ্তাহিক</option>
+        <option value="মাসিক">মাসিক</option>
+      </select>
+    </div>
+    
+    <button type="submit" class="btn btn-success">ঋণ যোগ করুন</button>
+    <a href="{{ url_for('manage_loans') }}" class="btn btn-secondary">বাতিল</a>
+  </form>
+
+  <script>
+    const loanDateInput = document.querySelector('input[name="loan_date"]');
+    const dueDateInput = document.querySelector('input[name="due_date"]');
+    const installmentCountInput = document.getElementById('installment_count');
+    const installmentTypeInput = document.getElementById('installment_type');
+
+    function calculateDueDate() {
+      const loanDate = loanDateInput.value;
+      const installmentCount = parseInt(installmentCountInput.value) || 0;
+      const installmentType = installmentTypeInput.value;
+
+      if (loanDate && installmentCount > 0 && installmentType) {
+        const startDate = new Date(loanDate);
+        let daysToAdd = 0;
+
+        if (installmentType === 'দৈনিক') {
+          daysToAdd = installmentCount;
+        } else if (installmentType === 'সাপ্তাহিক') {
+          daysToAdd = installmentCount * 7;
+        } else if (installmentType === 'মাসিক') {
+          daysToAdd = installmentCount * 30;
+        }
+
+        const dueDate = new Date(startDate);
+        dueDate.setDate(dueDate.getDate() + daysToAdd);
+        
+        const year = dueDate.getFullYear();
+        const month = String(dueDate.getMonth() + 1).padStart(2, '0');
+        const day = String(dueDate.getDate()).padStart(2, '0');
+        dueDateInput.value = `${year}-${month}-${day}`;
+      }
+    }
+
+    loanDateInput.addEventListener('change', calculateDueDate);
+    installmentCountInput.addEventListener('input', calculateDueDate);
+    installmentTypeInput.addEventListener('change', calculateDueDate);
+
+    // Set today's date as default
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    loanDateInput.value = `${year}-${month}-${day}`;
+  </script>
+</body>
+</html>

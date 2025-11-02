@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Customer Details - {{ customer.name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    @media print {
+      .no-print { display: none; }
+      body { font-size: 11px; }
+    }
+    body { padding: 20px; }
+    .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+    table { font-size: 12px; }
+    th, td { padding: 5px !important; }
+  </style>
+</head>
+<body>
+  <div class="no-print mb-3 text-center">
+    <button onclick="window.print()" class="btn btn-primary">🖨️ প্রিন্ট করুন</button>
+    <a href="{{ url_for('customer_details', id=customer.id) }}" class="btn btn-secondary">ফিরে যান</a>
+  </div>
+
+  <div class="header">
+    <h3>সদস্যার বিস্তারিত তথ্য</h3>
+    <p><strong>Customer Details Report</strong></p>
+  </div>
+
+  <!-- Customer Info -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">👤 {{ customer.name }}</h5>
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>সদস্যা নং:</strong> {{ customer.member_no or 'N/A' }}</p>
+          <p><strong>মোবাইল:</strong> {{ customer.phone }}</p>
+          <p><strong>পিতা/স্বামী:</strong> {{ customer.father_husband or 'N/A' }}</p>
+          <p><strong>গ্রাম:</strong> {{ customer.village or 'N/A' }}</p>
+          <p><strong>পোস্ট:</strong> {{ customer.post or 'N/A' }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>থানা:</strong> {{ customer.thana or 'N/A' }}</p>
+          <p><strong>জেলা:</strong> {{ customer.district or 'N/A' }}</p>
+          <p><strong>পেশা:</strong> {{ customer.profession or 'N/A' }}</p>
+          <p><strong>NID:</strong> {{ customer.nid_no or 'N/A' }}</p>
+          <p><strong>যোগ তারিখ:</strong> {{ customer.created_date.strftime('%d-%m-%Y') }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h6>মোট লোন</h6>
+          <h5>৳{{ "{:,.2f}".format(customer.total_loan) }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h6>বাকি লোন</h6>
+          <h5 class="text-danger">৳{{ "{:,.2f}".format(customer.remaining_loan) }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h6>সঞ্চয় ব্যালেন্স</h6>
+          <h5 class="text-success">৳{{ "{:,.2f}".format(customer.savings_balance) }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h6>মোট উত্তোলন</h6>
+          <h5 class="text-warning">৳{{ "{:,.2f}".format(total_withdrawn) }}</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loan Collection History -->
+  <h5 class="mt-4">💰 লোন কালেকশন হিস্ট্রি / Loan Collection History</h5>
+  <table class="table table-bordered table-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>ক্রমিক</th>
+        <th>টাকার পরিমাণ</th>
+        <th>তারিখ</th>
+        <th>কালেক্টর</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lc in loan_collections %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>৳{{ "{:,.2f}".format(lc.amount) }}</td>
+        <td>{{ lc.collection_date.strftime('%d-%m-%Y') }}</td>
+        <td>{{ lc.staff.name }}</td>
+      </tr>
+      {% endfor %}
+      {% if not loan_collections %}
+      <tr>
+        <td colspan="4" class="text-center">কোনো লোন কালেকশন নেই</td>
+      </tr>
+      {% endif %}
+    </tbody>
+    <tfoot class="table-secondary">
+      <tr>
+        <th colspan="1">মোট:</th>
+        <th>৳{{ "{:,.2f}".format(total_loan_collected) }}</th>
+        <th colspan="2"></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- Savings Collection History -->
+  <h5 class="mt-4">🏦 সঞ্চয় কালেকশন হিস্ট্রি / Savings Collection History</h5>
+  <table class="table table-bordered table-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>ক্রমিক</th>
+        <th>টাকার পরিমাণ</th>
+        <th>তারিখ</th>
+        <th>কালেক্টর</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sc in saving_collections %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>৳{{ "{:,.2f}".format(sc.amount) }}</td>
+        <td>{{ sc.collection_date.strftime('%d-%m-%Y') }}</td>
+        <td>{{ sc.staff.name }}</td>
+      </tr>
+      {% endfor %}
+      {% if not saving_collections %}
+      <tr>
+        <td colspan="4" class="text-center">কোনো সঞ্চয় কালেকশন নেই</td>
+      </tr>
+      {% endif %}
+    </tbody>
+    <tfoot class="table-secondary">
+      <tr>
+        <th colspan="1">মোট:</th>
+        <th>৳{{ "{:,.2f}".format(total_saving_collected) }}</th>
+        <th colspan="2"></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- Savings Withdrawal History -->
+  <h5 class="mt-4">💵 সঞ্চয় ফেরত হিস্ট্রি / Savings Withdrawal History</h5>
+  <table class="table table-bordered table-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>ক্রমিক</th>
+        <th>টাকার পরিমাণ</th>
+        <th>তারিখ</th>
+        <th>নোট</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for w in withdrawals %}
+      <tr class="table-danger">
+        <td>{{ loop.index }}</td>
+        <td>৳{{ "{:,.2f}".format(w.amount) }}</td>
+        <td>{{ w.date.strftime('%d-%m-%Y') }}</td>
+        <td>{{ w.note or '-' }}</td>
+      </tr>
+      {% endfor %}
+      {% if not withdrawals %}
+      <tr>
+        <td colspan="4" class="text-center">কোনো সঞ্চয় ফেরত নেই</td>
+      </tr>
+      {% endif %}
+    </tbody>
+    <tfoot class="table-secondary">
+      <tr>
+        <th colspan="1">মোট:</th>
+        <th>৳{{ "{:,.2f}".format(total_withdrawn) }}</th>
+        <th colspan="2"></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="text-center mt-4">
+    <small class="text-muted">প্রিন্ট তারিখ: {{ now.strftime('%d-%m-%Y %H:%M') }}</small>
+  </div>
+</body>
+</html>

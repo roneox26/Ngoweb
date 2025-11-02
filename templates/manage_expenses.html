@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Manage Expenses</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <h2 class="mb-4">💸 Manage Expenses</h2>
+
+  <div class="alert alert-info">
+    <strong>💵 Current Cash Balance:</strong> ৳{{ "{:,.2f}".format(cash_balance) }}
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card shadow p-3">
+        <h6>👨💼 Staff Salary</h6>
+        <h4>৳{{ "{:,.2f}".format(salary_total) }}</h4>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow p-3">
+        <h6>🏢 Office Cost</h6>
+        <h4>৳{{ "{:,.2f}".format(office_total) }}</h4>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow p-3">
+        <h6>🚗 Transport</h6>
+        <h4>৳{{ "{:,.2f}".format(transport_total) }}</h4>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow p-3 bg-danger text-white">
+        <h6>Total Expenses</h6>
+        <h4>৳{{ "{:,.2f}".format(total_expenses) }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow p-4 mb-4">
+    <h4>➕ Add New Expense</h4>
+    <form method="POST" class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-control" required>
+          <option value="">-- Select --</option>
+          <option value="Salary">👨💼 Staff Salary</option>
+          <option value="Office">🏢 Office Cost</option>
+          <option value="Transport">🚗 Transport</option>
+          <option value="Other">📦 Other</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Amount (৳)</label>
+        <input type="number" step="0.01" name="amount" class="form-control" required min="0.01" max="{{ cash_balance }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Description</label>
+        <input type="text" name="description" class="form-control" placeholder="Optional">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">&nbsp;</label>
+        <button type="submit" class="btn btn-danger w-100">Add Expense</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card shadow p-4">
+    <h4>📋 Expense History</h4>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Description</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for exp in expenses %}
+        <tr>
+          <td>
+            {% if exp.category == 'Salary' %}👨💼 Staff Salary
+            {% elif exp.category == 'Office' %}🏢 Office Cost
+            {% elif exp.category == 'Transport' %}🚗 Transport
+            {% else %}📦 Other{% endif %}
+          </td>
+          <td class="text-danger">৳{{ "{:,.2f}".format(exp.amount) }}</td>
+          <td>{{ exp.description or '-' }}</td>
+          <td>{{ exp.date.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+        {% if not expenses %}
+        <tr>
+          <td colspan="4" class="text-center">No expenses yet</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-4">⬅️ Back to Dashboard</a>
+</body>
+</html>

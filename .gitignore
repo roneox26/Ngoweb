@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+*.db
+instance/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+
+# Development Scripts
+add_welfare_fee_column.py
+check_db.py
+fix_loan_calculation.py
+recreate_db.py
+reset_db.py
+update_withdrawal_table.py
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Record Collection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <h2 class="mb-4">💰 Record Loan Collection</h2>
+
+  {% if loans %}
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Select Loan</label>
+      <select name="loan_id" class="form-control" required>
+        <option value="">-- Select Loan --</option>
+        {% for loan in loans %}
+        <option value="{{ loan.id }}">
+          Customer: {{ loan.customer_name if loan.customer_name else 'N/A' }} | 
+          Amount: ৳{{ "{:,.2f}".format(loan.amount) }} | 
+          Due: {{ loan.due_date.strftime('%Y-%m-%d') }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Collection Amount (৳)</label>
+      <input type="number" step="0.01" name="amount" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success">Record Collection</button>
+    <a href="{{ url_for('manage_collections') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+  {% else %}
+  <div class="alert alert-warning">
+    <strong>No pending loans found!</strong><br>
+    Please add a loan first before recording collections.
+  </div>
+  <a href="{{ url_for('add_loan') }}" class="btn btn-primary">Add New Loan</a>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+  {% endif %}
+</body>
+</html>

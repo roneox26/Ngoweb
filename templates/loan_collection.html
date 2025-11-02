@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>💰 Loan Collection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">💰 Loan Collection</span>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+  </nav>
+
+  <div class="container mt-4">
+    <h3>আপনার কাস্টমারদের লোন কালেকশন</h3>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if customers %}
+      <div class="row mt-4">
+        {% for customer in customers %}
+          <div class="col-md-6 mb-3">
+            <div class="card shadow">
+              <div class="card-body">
+                <h5 class="card-title">{{ customer.name }}</h5>
+                <p class="mb-1"><strong>📞 Phone:</strong> {{ customer.phone }}</p>
+                <p class="mb-1"><strong>📍 Address:</strong> {{ customer.address }}</p>
+                <p class="mb-1"><strong>💵 Total Loan:</strong> ৳{{ "%.2f"|format(customer.total_loan) }}</p>
+                <p class="mb-3"><strong>⚠️ Remaining:</strong> <span class="text-danger">৳{{ "%.2f"|format(customer.remaining_loan) }}</span></p>
+                
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#collectModal{{ customer.id }}">
+                  💰 Collect Payment
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collection Modal -->
+          <div class="modal fade" id="collectModal{{ customer.id }}" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Collect from {{ customer.name }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('collect_loan') }}">
+                  <div class="modal-body">
+                    <input type="hidden" name="customer_id" value="{{ customer.id }}">
+                    <div class="mb-3">
+                      <label class="form-label">Remaining Loan: ৳{{ "%.2f"|format(customer.remaining_loan) }}</label>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Collection Amount (৳)</label>
+                      <input type="number" step="0.01" name="amount" class="form-control" required max="{{ customer.remaining_loan }}">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">✅ Submit Collection</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info mt-4">
+        কোনো কাস্টমারের বকেয়া লোন নেই।
+      </div>
+    {% endif %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

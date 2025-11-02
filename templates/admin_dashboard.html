@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">Admin Panel</span>
+    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+  </nav>
+
+  <div class="container mt-4">
+    <h2>Welcome, {{ name }} (Admin)</h2>
+
+    <div class="row mt-4">
+      <div class="col-md-3">
+        <a href="{{ url_for('manage_cash_balance') }}" class="text-decoration-none">
+          <div class="card shadow p-3 bg-success text-white">
+            <h5>💵 Cash Balance</h5>
+            <h2>৳{{ "{:,.2f}".format(cash_balance) }}</h2>
+            <small>ক্লিক করে ম্যানেজ করুন</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow p-3">
+          <h5>Total Customers</h5>
+          <h3>{{ total_customers }}</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow p-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5>Total Loans Given</h5>
+            <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='{{ url_for('dashboard') }}?period=' + this.value + '&fee_period={{ fee_period }}'">
+              <option value="all" {% if period == 'all' %}selected{% endif %}>সব</option>
+              <option value="monthly" {% if period == 'monthly' %}selected{% endif %}>মাসিক</option>
+              <option value="yearly" {% if period == 'yearly' %}selected{% endif %}>বার্ষিক</option>
+            </select>
+          </div>
+          <h3>৳{{ "{:,.2f}".format(total_loans) }}</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow p-3">
+          <h5>Remaining Loans</h5>
+          <h3>৳{{ "{:,.2f}".format(pending_loans) }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-3">
+        <div class="card shadow p-3">
+          <h5>Total Savings</h5>
+          <h3>৳{{ "{:,.2f}".format(total_savings) }}</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow p-3">
+          <h5>Staff Count</h5>
+          <h3>{{ staff_count }}</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow p-3 bg-info text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5>জমা (ফি)</h5>
+            <select class="form-select form-select-sm text-dark" style="width: auto;" onchange="window.location.href='{{ url_for('dashboard') }}?period={{ period }}&fee_period=' + this.value">
+              <option value="all" {% if fee_period == 'all' %}selected{% endif %}>সব</option>
+              <option value="monthly" {% if fee_period == 'monthly' %}selected{% endif %}>মাসিক</option>
+              <option value="yearly" {% if fee_period == 'yearly' %}selected{% endif %}>বার্ষিক</option>
+            </select>
+          </div>
+          <h3>৳{{ "{:,.2f}".format(total_fees) }}</h3>
+          <small>আবেদন+কল্যাণ+ভর্তি ফি</small>
+        </div>
+      </div>
+    </div>
+
+    <h4 class="mt-5">Management</h4>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <a href="{{ url_for('manage_staff') }}" class="btn btn-primary btn-lg w-100 mb-3">
+          👨💼 Manage Staff ({{ staff_count }})
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a href="{{ url_for('manage_customers') }}" class="btn btn-info btn-lg w-100 mb-3">
+          👥 Manage Customers ({{ total_customers }})
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <a href="{{ url_for('manage_loans') }}" class="btn btn-success btn-lg w-100 mb-3">
+          💰 Manage Loans
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a href="{{ url_for('loan_customers') }}" class="btn btn-warning btn-lg w-100 mb-3">
+          👥 Loan Customers
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <a href="{{ url_for('loan_collections_history') }}" class="btn btn-info btn-lg w-100 mb-3">
+          💰 Loan Collections History
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a href="{{ url_for('manage_customers') }}" class="btn btn-secondary btn-lg w-100 mb-3">
+          👥 All Customers
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <a href="{{ url_for('manage_savings') }}" class="btn btn-warning btn-lg w-100 mb-3">
+          💵 Savings Collections History
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a href="{{ url_for('manage_collections') }}" class="btn btn-secondary btn-lg w-100 mb-3">
+          📊 All Collections
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <a href="{{ url_for('manage_expenses') }}" class="btn btn-danger btn-lg w-100 mb-3">
+          💸 Manage Expenses
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{{ url_for('manage_withdrawals') }}" class="btn btn-warning btn-lg w-100 mb-3">
+          💵 সঞ্চয় ফেরত / Withdrawal
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{{ url_for('profit_loss') }}" class="btn btn-success btn-lg w-100 mb-3">
+          📊 Profit & Loss
+        </a>
+      </div>
+    </div>
+    <h4 class="mt-4">📊 রিপোর্ট</h4>
+    <div class="row">
+      <div class="col-md-3">
+        <a href="{{ url_for('daily_report') }}" class="btn btn-primary btn-lg w-100 mb-3">
+          📅 দৈনিক রিপোর্ট
+        </a>
+      </div>
+      <div class="col-md-3">
+        <a href="{{ url_for('monthly_report') }}" class="btn btn-success btn-lg w-100 mb-3">
+          📆 মাসিক রিপোর্ট
+        </a>
+      </div>
+      <div class="col-md-3">
+        <a href="{{ url_for('withdrawal_report') }}" class="btn btn-info btn-lg w-100 mb-3">
+          💵 Withdrawal রিপোর্ট
+        </a>
+      </div>
+      <div class="col-md-3">
+        <a href="{{ url_for('profit_loss') }}" class="btn btn-warning btn-lg w-100 mb-3">
+          📊 Profit & Loss
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <a href="{{ url_for('view_messages') }}" class="btn btn-dark btn-lg w-100 mb-3">
+          📩 Send Messages to Staff
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Customer Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+  <h2 class="mb-4">👤 Customer Details</h2>
+
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <h4>👤 {{ customer.name }}</h4>
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>সদস্যা নং:</strong> {{ customer.member_no or 'N/A' }}</p>
+          <p><strong>📞 মোবাইল:</strong> {{ customer.phone }}</p>
+          <p><strong>👨 পিতা/স্বামী:</strong> {{ customer.father_husband or 'N/A' }}</p>
+          <p><strong>🏘️ গ্রাম:</strong> {{ customer.village or 'N/A' }}</p>
+          <p><strong>🏤 পোস্ট:</strong> {{ customer.post or 'N/A' }}</p>
+          <p><strong>🏛️ থানা:</strong> {{ customer.thana or 'N/A' }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>🏛️ জেলা:</strong> {{ customer.district or 'N/A' }}</p>
+          <p><strong>🤝 জামিনদার:</strong> {{ customer.granter or 'N/A' }}</p>
+          <p><strong>💼 পেশা:</strong> {{ customer.profession or 'N/A' }}</p>
+          <p><strong>🎫 NID:</strong> {{ customer.nid_no or 'N/A' }}</p>
+          <p><strong>💵 ভর্তি ফি:</strong> ৳{{ "{:,.2f}".format(customer.admission_fee or 0) }}</p>
+          <p><strong>👨‍💼 Staff:</strong> {{ customer.staff.name if customer.staff else 'N/A' }}</p>
+          <p><strong>📅 যোগ তারিখ:</strong> {{ customer.created_date.strftime('%Y-%m-%d') }}</p>
+        </div>
+      </div>
+      {% if customer.address %}
+      <p class="mt-2"><strong>📍 ঠিকানা:</strong> {{ customer.address }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card shadow p-3 bg-primary text-white">
+        <h5>Total Loan</h5>
+        <h3>৳{{ "{:,.2f}".format(customer.total_loan) }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow p-3 bg-danger text-white">
+        <h5>Remaining Loan</h5>
+        <h3>৳{{ "{:,.2f}".format(customer.remaining_loan) }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow p-3 bg-success text-white">
+        <h5>Total Collected</h5>
+        <h3>৳{{ "{:,.2f}".format(total_collected) }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card shadow p-3">
+        <h5>Savings Balance</h5>
+        <h3 class="text-success">৳{{ "{:,.2f}".format(customer.savings_balance) }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <h4 class="mt-4">💰 Loan Collection History</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Collected By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lc in loan_collections %}
+      <tr>
+        <td>৳{{ "{:,.2f}".format(lc.amount) }}</td>
+        <td>{{ lc.collection_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ lc.staff.name }}</td>
+      </tr>
+      {% endfor %}
+      {% if not loan_collections %}
+      <tr>
+        <td colspan="3" class="text-center">No loan collections yet</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <h4 class="mt-4">🏦 Savings Collection History</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Collected By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sc in saving_collections %}
+      <tr>
+        <td>৳{{ "{:,.2f}".format(sc.amount) }}</td>
+        <td>{{ sc.collection_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ sc.staff.name }}</td>
+      </tr>
+      {% endfor %}
+      {% if not saving_collections %}
+      <tr>
+        <td colspan="3" class="text-center">No savings collections yet</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <h4 class="mt-4">💵 Savings Withdrawal History</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for w in withdrawals %}
+      <tr class="table-danger">
+        <td>৳{{ "{:,.2f}".format(w.amount) }}</td>
+        <td>{{ w.date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ w.note or '-' }}</td>
+      </tr>
+      {% endfor %}
+      {% if not withdrawals %}
+      <tr>
+        <td colspan="3" class="text-center">No withdrawals yet</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <div class="alert alert-info mt-3">
+    <strong>মোট উত্তোলন:</strong> ৳{{ "{:,.2f}".format(total_withdrawn) }}
+  </div>
+
+  <a href="{{ url_for('customer_details_print', id=customer.id) }}" class="btn btn-primary mt-3" target="_blank">🖨️ Print Details</a>
+  <a href="{{ url_for('loan_customers') }}" class="btn btn-secondary mt-3">⬅️ Back to Loan Customers</a>
+</body>
+</html>
